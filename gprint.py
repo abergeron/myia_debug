@@ -21,7 +21,7 @@ from myia.ir import ANFNode, Apply, Constant, Graph, GraphCloner, \
 from myia.parser import Location
 from myia.prim import ops as primops
 from myia.prim.value_inferrers import LimitedValue
-from myia.opt import PatternEquilibriumOptimizer, pattern_replacer
+from myia.opt import LocalPassOptimizer, pattern_replacer, NodeMap
 from myia.utils import Registry, NS
 from myia.utils.unify import Var, SVar, var, FilterVar
 from myia.vm import VMFrame, Closure
@@ -474,11 +474,14 @@ def cosmetic_transformer(g):
     The resulting graph is not a valid one to run, because it may contain nodes
     with fake functions that only serve a cosmetic purpose.
     """
-    opt = PatternEquilibriumOptimizer(
-        _opt_fancy_make_tuple,
-        _opt_fancy_getitem,
-        _opt_fancy_resolve,
-        _opt_fancy_getattr,
+    nmap = NodeMap()
+    nmap.register(None, _opt_fancy_make_tuple)
+    nmap.register(None, _opt_fancy_getitem)
+    nmap.register(None, _opt_fancy_resolve)
+    nmap.register(None, _opt_fancy_getattr)
+
+    opt = LocalPassOptimizer(
+        nmap
     )
     opt(g)
     return g
