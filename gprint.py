@@ -602,8 +602,8 @@ class _Context:
             sig = {}
             for group in curr.argkey:
                 for name, value in group:
-                    l = sig.setdefault(name, [])
-                    l.append(value)
+                    lst = sig.setdefault(name, [])
+                    lst.append(value)
             d[curr.graph] = sig
             curr = curr.parent
         return hrepr.stdrepr_object('Context', list(d.items()))
